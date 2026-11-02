@@ -92,7 +92,7 @@ pub struct Cell {
     pub scale: f64,
     pub rot: bool,
     /// split: the part of the source page to show [x, y, w, h] in source points
-    #[serde(skip)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub crop: Option<[f64; 4]>,
     /// clip rectangle [x, y, w, h] on the sheet
     #[serde(skip)]

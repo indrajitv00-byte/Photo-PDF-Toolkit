@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 mod imgproc;
 mod impose;
+mod pages;
 mod pdftools;
 use imgproc::{Fail, Opts, PreviewOut, RunOut};
 use serde_json::json;
@@ -122,6 +123,17 @@ async fn pdf_impose(
     .map_err(|e| e.to_string())?
 }
 
+#[tauri::command]
+async fn pdf_arrange(
+    path: String,
+    pages: Vec<pages::PageSpec>,
+    out: String,
+) -> Result<pages::ArrangeOut, String> {
+    tauri::async_runtime::spawn_blocking(move || pages::arrange(&path, &pages, &out))
+        .await
+        .map_err(|e| e.to_string())?
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -136,7 +148,8 @@ fn main() {
             pdf_compress,
             impose_sizes,
             impose_plan,
-            pdf_impose
+            pdf_impose,
+            pdf_arrange
         ])
         .run(tauri::generate_context!())
         .expect("error while running Photo and PDF Toolkit");
