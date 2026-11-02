@@ -103,8 +103,8 @@ async fn impose_sizes(path: String) -> Result<impose::SizesOut, String> {
 }
 
 #[tauri::command]
-fn impose_plan(sizes: Vec<[f64; 2]>, opts: impose::Opts, limit: usize) -> Result<impose::Plan, String> {
-    impose::plan(sizes, &opts, limit)
+fn impose_plan(sizes: Vec<[f64; 2]>, opts: impose::Opts) -> Result<impose::Plan, String> {
+    impose::plan(sizes, &opts)
 }
 
 #[tauri::command]

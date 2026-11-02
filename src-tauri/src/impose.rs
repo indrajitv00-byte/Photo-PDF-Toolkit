@@ -591,12 +591,10 @@ pub fn sizes(path: &str) -> Result<SizesOut, String> {
     Ok(SizesOut { pages: v.len(), sizes: v })
 }
 
-/// preview plan: only the first `limit` sheets are returned
-pub fn plan(sizes: Vec<[f64; 2]>, opts: &Opts, limit: usize) -> Result<Plan, String> {
+/// Preview plan containing every generated sheet.
+pub fn plan(sizes: Vec<[f64; 2]>, opts: &Opts) -> Result<Plan, String> {
     let s: Vec<(f64, f64)> = sizes.iter().map(|p| (p[0], p[1])).collect();
-    let mut p = make_plan(&s, opts)?;
-    p.sheets.truncate(limit.max(1));
-    Ok(p)
+    make_plan(&s, opts)
 }
 
 // ------------------------------------------------------------- PDF writing

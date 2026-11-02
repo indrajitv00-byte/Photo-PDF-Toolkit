@@ -368,7 +368,7 @@ function iSchedule(){if(tool!=='impose')return;iUi();clearTimeout(iT);iT=setTime
 async function iPlan(){const f=PDF.impose.find(x=>!x.error&&x.sizes),el=$('iPrev');
  if(!f){++iSeq;el.classList.add('hide');iErr='';return}
  const seq=++iSeq;
- try{const p=await inv('impose_plan',{sizes:f.sizes,opts:iOpts(),limit:12});if(seq!==iSeq)return;iErr='';await iDraw(p,f.path,f.sizes,seq)}
+ try{const p=await inv('impose_plan',{sizes:f.sizes,opts:iOpts()});if(seq!==iSeq)return;iErr='';await iDraw(p,f.path,f.sizes,seq)}
  catch(e){if(seq!==iSeq)return;iErr=String(e);el.classList.remove('hide');el.innerHTML=`<p class="iErr">${esc(iErr)}</p>`}
  $('pGo').disabled=pBusy||!!iErr}
 async function iDraw(p,path,sizes,seq){const el=$('iPrev'),m=$('iMode').value,images=new Map();let previewError='';
@@ -385,7 +385,7 @@ async function iDraw(p,path,sizes,seq){const el=$('iPrev'),m=$('iMode').value,im
    return`${image}<rect class="iPg iOutline" x="${c.x}" y="${y}" width="${c.w}" height="${c.h}"/><rect class="iNumBg" x="${bx}" y="${by}" width="${badge*1.7}" height="${badge}" rx="${badge*.15}"/><text class="iNum" x="${bx+badge*.85}" y="${by+badge*.5}" font-size="${badge*.65}" text-anchor="middle" dominant-baseline="central">${c.src+1}</text>`}).join('');
   return`<figure class="iFig"><svg viewBox="0 0 ${s.w} ${H}"><rect class="iSh" width="${s.w}" height="${H}"/>${cells}</svg><figcaption>${esc(s.label)}</figcaption></figure>`}).join('');
  const t=p.total,head=m==='booklet'?`${p.selected} pages → <b>${Math.ceil(t/2)} sheet${t<=2?'':'s'} of paper</b> (${t} printed sides)`:m==='split'?`${p.selected} page${p.selected===1?'':'s'} → <b>${t} piece${t===1?'':'s'}</b>`:`${p.selected} page${p.selected===1?'':'s'} → <b>${t} sheet${t===1?'':'s'}</b>`;
- el.innerHTML=`<h4>${head}${t>p.sheets.length?` · showing the first ${p.sheets.length}`:''}</h4><div class="iGrid">${figs}</div>${previewError?`<p class="iNote">${previewError}</p>`:''}${p.notes.length?`<ul class="iNote">${p.notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul>`:''}`}
+ el.innerHTML=`<h4>${head}</h4><div class="iGrid">${figs}</div>${previewError?`<p class="iNote">${previewError}</p>`:''}${p.notes.length?`<ul class="iNote">${p.notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul>`:''}`}
 $('iMode').onchange=()=>{const m=$('iMode').value;iFillSheets();
  if(m==='nup'){$('iCols').value=2;$('iRows').value=2}else if(m==='repeat'){$('iCols').value=2;$('iRows').value=4}else if(m==='split'){$('iCols').value=2;$('iRows').value=1}
  iUi();iSchedule()};
