@@ -36,9 +36,15 @@ body.pdf main,body.pdf aside,body.pdf footer,body.pdf #imgBtns{display:none}body
 #pSide{background:var(--card);border-left:1px solid var(--line);overflow:auto;padding:6px 16px 16px}#pSide p{margin:6px 0;color:var(--mute);line-height:1.45}
 #pFoot{background:var(--card);border-top:1px solid var(--line);padding:12px 20px;display:flex;align-items:center;gap:14px}#pFoot #pMsg{flex:1;color:var(--mute);min-width:0}
 #pBar{width:180px;height:8px;background:var(--line);border-radius:4px;overflow:hidden}#pBar div{height:100%;width:0;background:var(--ac);transition:width .15s}
+
+#iPrev{margin-top:16px}#iPrev h4{margin:0 0 8px;font-size:13px;color:var(--mute);font-weight:600}#iPrev h4 b{color:var(--ink)}
+.iGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.iFig{margin:0;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px}.iFig svg{width:100%;height:auto;max-height:260px;display:block}.iFig figcaption{font-size:12px;color:var(--mute);margin-top:6px}
+.iSh{fill:#fff;stroke:var(--mute);stroke-width:1;vector-effect:non-scaling-stroke}.iPg{fill:var(--ac2);stroke:var(--ac);stroke-width:1.5;vector-effect:non-scaling-stroke}.iBl{fill:none;stroke:var(--mute);stroke-width:1;stroke-dasharray:4 3;vector-effect:non-scaling-stroke}.iFig text{fill:var(--ac);font-weight:700;font-family:inherit}
+.iNote{margin:10px 0 0;padding:0 0 0 18px;color:var(--mute);font-size:13px;line-height:1.5}.iErr{color:var(--err);margin:8px 0}
 </style></head><body>
 <header><h1><img src="logo.png" height="26" style="vertical-align:middle"> Photo & PDF Toolkit</h1></h1>
-<nav id="tabs"><button data-t="img" class="on">Images</button><button data-t="merge">Merge PDF</button><button data-t="split">Split PDF</button><button data-t="comp">Compress PDF</button></nav>
+<nav id="tabs"><button data-t="img" class="on">Images</button><button data-t="merge">Merge PDF</button><button data-t="split">Split PDF</button><button data-t="impose">Impose</button><button data-t="comp">Compress PDF</button></nav>
 <div id="imgBtns"><button id="addF">Add files</button><button id="addD">Add folder</button><button id="clr">Clear</button></div></header>
 
 <main id="main"><div id="pv"><div class="pane"><h4 id="hA">Original</h4><div class="box"><img id="pvA" alt=""></div><p id="capA"></p></div><div class="pane"><h4>Preview with your settings</h4><div class="box"><img id="pvB" alt=""><em id="busy" class="hide">Updating…</em></div><p id="capB"></p></div></div><div id="list"><div id="drop"><b>Drop photos or folders here</b>or use “Add files” above<small>JPG · PNG · WebP · TIFF · GIF · BMP</small></div><div class="grid hide" id="grid"></div></div></main>
@@ -100,7 +106,7 @@ body.pdf main,body.pdf aside,body.pdf footer,body.pdf #imgBtns{display:none}body
 
 <div id="pdf">
 <div id="pMain">
-<div id="pBody"><div id="pDrop"><b>Drop PDF files here</b>or use the button below<small>Everything stays on your computer</small></div><div id="pList" class="hide"></div></div>
+<div id="pBody"><div id="pDrop"><b>Drop PDF files here</b>or use the button below<small>Everything stays on your computer</small></div><div id="pList" class="hide"></div><div id="iPrev" class="hide"></div></div>
 <div id="pFoot"><button id="pAdd">Add PDFs</button><button id="pClr">Clear</button><span id="pMsg">Add PDFs to begin</span><div id="pBar"><div></div></div><button class="p" id="pGo" disabled>Merge</button></div>
 </div>
 <div id="pSide">
@@ -115,6 +121,27 @@ body.pdf main,body.pdf aside,body.pdf footer,body.pdf #imgBtns{display:none}body
 <details open id="o-comp" class="hide"><summary>Compress PDF</summary>
 <label>Level<select id="cLevel"><option value="light">Light (best quality)</option><option value="balanced" selected>Balanced</option><option value="strong">Strong (smallest file)</option></select></label>
 <p>Shrinks the photos and scans inside the PDF. PDFs that are mostly text will not get much smaller. Your original file is never changed; a new “_compressed” copy is saved.</p></details>
+<details open id="o-impose" class="hide"><summary>Impose PDF</summary>
+<label>Layout<select id="iMode"><option value="booklet">Booklet (fold &amp; staple)</option><option value="nup">N-up (several pages per sheet)</option><option value="repeat">Repeat (one page, many copies)</option><option value="split">Split (cut pages into pieces)</option></select></label>
+<label id="iSheetL">Sheet size<select id="iSheet"></select></label>
+<label id="iCustomL" class="hide">Custom size (mm)<span><input type="number" id="iCW" value="210" min="20" style="width:64px"> × <input type="number" id="iCH" value="297" min="20" style="width:64px"></span></label>
+<label id="iOrientL">Sheet orientation<select id="iOrient"><option value="auto">Automatic</option><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select></label>
+<label id="iGridL" class="hide">Pieces per sheet<span><input type="number" id="iCols" value="2" min="1" max="20" style="width:56px"> across × <input type="number" id="iRows" value="2" min="1" max="20" style="width:56px"> down</span></label>
+<label id="iMarginL">Margin (mm)<input type="number" id="iMargin" value="0" min="0" step="1"></label>
+<label id="iGapXL">Gap between pages (mm)<input type="number" id="iGapX" value="0" min="0" step="1"></label>
+<label id="iGapYL" class="hide">Gap between rows (mm)<input type="number" id="iGapY" value="0" min="0" step="1"></label>
+<label id="iOrderL" class="hide">Page order<select id="iOrder"><option value="across">Across, then down</option><option value="down">Down, then across</option></select></label>
+<label id="iScaleL">Page size<select id="iScale"><option value="fit">Scale to fit</option><option value="actual">Actual size (100%)</option></select></label>
+<label id="iRotL" class="hide"><input type="checkbox" id="iRot">Rotate pages to fit better</label>
+<label id="iBordersL"><input type="checkbox" id="iBorders">Draw a thin border around each page</label>
+<label id="iMarksL"><input type="checkbox" id="iMarks">Crop and fold marks</label>
+<label id="iRtlL"><input type="checkbox" id="iRtl">Right-to-left binding</label>
+<label id="iCreepL">Creep per sheet (mm)<input type="number" id="iCreep" value="0" min="0" step="0.1"></label>
+<label id="iSectionL">Pages per section<input type="number" id="iSection" value="0" min="0" step="4" title="0 = one booklet"></label>
+<label id="iOverlapL" class="hide">Overlap between pieces (mm)<input type="number" id="iOverlap" value="0" min="0" step="1"></label>
+<label>Pages to use<input type="text" id="iPages" placeholder="all pages" style="width:150px"></label>
+<p id="iHelp"></p>
+<p>Links, bookmarks and form fields are not carried over. Your original file is never changed; you choose where to save the new file.</p></details>
 <details open id="o-save" class="hide"><summary>Save to</summary>
 <label>Folder<button id="pPick" style="padding:5px 10px">Choose…</button></label><div id="pOutShow" style="font-size:12px;color:var(--mute);word-break:break-all">Same folder as original</div></details>
 </div>
@@ -182,8 +209,8 @@ $('go').onclick=async()=>{$('go').disabled=true;
 
 /* ---------- PDF tools: merge / split / compress ---------- */
 let tool='img',pOut=null,pBusy=false;
-const PDF={merge:[],split:[],comp:[]};
-const TOOL={merge:{btn:'Merge',one:false,msg:'Add two or more PDFs to merge'},split:{btn:'Split',one:true,msg:'Choose a PDF to split'},comp:{btn:'Compress',one:false,msg:'Add PDFs to compress'}};
+const PDF={merge:[],split:[],comp:[],impose:[]};let iErr='',iT=0,iSeq=0;
+const TOOL={merge:{btn:'Merge',one:false,msg:'Add two or more PDFs to merge'},split:{btn:'Split',one:true,msg:'Choose a PDF to split'},comp:{btn:'Compress',one:false,msg:'Add PDFs to compress'},impose:{btn:'Impose',one:true,msg:'Choose a PDF to impose'}};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const baseName=p=>p.split(/[\\/]/).pop(),dirOf=p=>p.replace(/[\\/][^\\/]*$/,'');
 const pdfApi={
@@ -197,16 +224,18 @@ const setP=t=>$('pMsg').textContent=t;
 function setTool(t){tool=t;document.body.classList.toggle('pdf',t!=='img');
  [...$('tabs').children].forEach(b=>b.classList.toggle('on',b.dataset.t===t));
  if(t==='img')return;
- ['merge','split','comp'].forEach(k=>$('o-'+k).classList.toggle('hide',k!==t));
- $('o-save').classList.toggle('hide',t==='merge');$('pGo').textContent=TOOL[t].btn;pRender()}
+ ['merge','split','comp','impose'].forEach(k=>$('o-'+k).classList.toggle('hide',k!==t));
+ if(t==='impose'){iFillSheets();iUi()}
+ $('o-save').classList.toggle('hide',t==='merge'||t==='impose');$('pGo').textContent=TOOL[t].btn;pRender()}
 function pRender(keepMsg){const L=PDF[tool],m=TOOL[tool],ok=L.filter(f=>!f.error);
  $('pDrop').classList.toggle('hide',L.length>0);$('pList').classList.toggle('hide',!L.length);
  $('pList').innerHTML=L.map((f,i)=>`<div class="pr${f.error?' bad':''}" data-i="${i}">${tool==='merge'?`<span class="n">${i+1}</span>`:''}<div class="nm"><b title="${esc(f.path)}">${esc(baseName(f.path))}</b>${f.error?`<small class="er">${esc(f.error)}</small>`:`<small>${f.pages} page${f.pages===1?'':'s'} · ${fmtB(f.bytes)}</small>`}${f.note?` <small class="${f.noteCls||''}">${esc(f.note)}</small>`:''}</div>${tool==='merge'?`<button data-a="up"${i?'':' disabled'}>↑</button><button data-a="dn"${i<L.length-1?'':' disabled'}>↓</button>`:''}<button data-a="rm">✕</button></div>`).join('');
  $('pAdd').textContent=m.one?'Choose PDF':'Add PDFs';
- $('pGo').disabled=pBusy||(tool==='merge'?ok.length<2:ok.length<1);
+ $('pGo').disabled=pBusy||(tool==='merge'?ok.length<2:ok.length<1)||(tool==='impose'&&!!iErr);
  $('sPages').textContent=tool==='split'&&ok[0]?`This PDF has ${ok[0].pages} pages.`:'';
+ if(tool==='impose')iSchedule();
  if(keepMsg)return;$('pBar').firstChild.style.width='0';
- setP(!L.length?m.msg:tool==='merge'?`${ok.length} PDFs · ${ok.reduce((a,f)=>a+f.pages,0)} pages in total`:tool==='split'&&ok[0]?`${ok[0].pages} pages`:`${ok.length} PDF${ok.length===1?'':'s'} ready`)}
+ setP(!L.length?m.msg:tool==='merge'?`${ok.length} PDFs · ${ok.reduce((a,f)=>a+f.pages,0)} pages in total`:(tool==='split'||tool==='impose')&&ok[0]?`${ok[0].pages} pages`:`${ok.length} PDF${ok.length===1?'':'s'} ready`)}
 async function pdfAdd(paths){let list=(paths||[]).filter(p=>/\.pdf$/i.test(p));
  if(!list.length){setP('Only PDF files can be added here');return}
  const L=PDF[tool];
@@ -214,6 +243,7 @@ async function pdfAdd(paths){let list=(paths||[]).filter(p=>/\.pdf$/i.test(p));
  if(!list.length)return;
  setP('Reading '+list.length+' file'+(list.length===1?'':'s')+'…');
  let infos;try{infos=await pdfApi.info(list)}catch(e){setP('Could not read the file: '+e);return}
+ if(tool==='impose'){for(const f of infos){if(f.error)continue;try{f.sizes=(await inv('impose_sizes',{path:f.path})).sizes}catch(e){f.error=String(e)}}}
  if(TOOL[tool].one)L.length=0;
  L.push(...infos);pRender()}
 $('tabs').onclick=e=>{const b=e.target.closest('button');if(b&&!pBusy)setTool(b.dataset.t)};
@@ -244,6 +274,14 @@ $('pGo').onclick=async()=>{const t=tool,ok=PDF[t].filter(f=>!f.error);if(!ok.len
    const out=await pdfApi.split(ok[0].path,mode,spec,pOut);
    $('pBar').firstChild.style.width='100%';setP(`Created ${out.length} file${out.length===1?'':'s'}`);
    if(confirm('Finished! Open the output folder?'))api.reveal(dirOf(out[0]));
+  }else if(t==='impose'){
+   const o=iOpts(),first=ok[0].path,sep=first.includes('\\')?'\\':'/';
+   const out=await T.dialog.save({defaultPath:dirOf(first)+sep+baseName(first).replace(/\.pdf$/i,'')+'_'+o.mode+'.pdf',filters:[{name:'PDF',extensions:['pdf']}]});
+   if(!out){setP('Cancelled');return}
+   setP('Imposing…');
+   const r=await inv('pdf_impose',{path:first,opts:o,out});
+   $('pBar').firstChild.style.width='100%';setP(`Created ${r.sheets} page${r.sheets===1?'':'s'} · ${fmtB(r.bytes)}`);
+   if(confirm('Finished! Open the output folder?'))api.reveal(dirOf(out));
   }else{
    setP('Compressing…');
    const res=await pdfApi.comp(ok.map(f=>f.path),$('cLevel').value,pOut);
@@ -258,4 +296,42 @@ $('pGo').onclick=async()=>{const t=tool,ok=PDF[t].filter(f=>!f.error);if(!ok.len
   }
  }catch(e){alert(String(e));setP('Failed')}
  finally{pBusy=false;pRender(true)}};
+
+/* ---------- Impose: booklet / n-up / repeat / split ---------- */
+const I_SHEETS=[['a6','A6'],['a5','A5'],['a4','A4'],['a3','A3'],['a2','A2'],['sra3','SRA3 (320 × 450 mm)'],['b5','B5'],['b4','B4'],['letter','Letter'],['legal','Legal'],['tabloid','Tabloid / Ledger'],['12x18','12 × 18 in'],['13x19','13 × 19 in'],['custom','Custom size…']];
+const I_HELP={booklet:'Reorders the pages so that, printed double-sided and folded, they read in order. Blank pages are added to reach a multiple of 4. Print double-sided and flip on the short edge. Use Pages per section for perfect-bound books, and Creep to compensate for thick paper.',
+ nup:'Places several pages on each sheet in reading order. Set the grid under Pieces per sheet.',
+ repeat:'Fills each sheet with copies of one page, for example business cards or labels. One sheet is made for every page you select.',
+ split:'Cuts every page into a grid of pieces and saves each piece as its own page. Use 2 across × 1 down to separate two-page spreads; add overlap for tiled posters.'};
+function iFillSheets(){const m=$('iMode').value,cur=$('iSheet').value;
+ const ex=m==='booklet'?[['auto','Automatic (two pages wide)']]:m==='split'?[['auto','Same size as each piece']]:[];
+ const L=[...ex,...I_SHEETS];$('iSheet').innerHTML=L.map(([v,t])=>`<option value="${v}">${t}</option>`).join('');
+ $('iSheet').value=L.some(x=>x[0]===cur)?cur:(ex.length?'auto':'a4');$('iHelp').textContent=I_HELP[m]}
+function iUi(){const m=$('iMode').value,sh=$('iSheet').value,auto=sh==='auto',g=m==='nup'||m==='repeat';
+ const on={iCustomL:sh==='custom',iOrientL:!auto,iGridL:m!=='booklet',iMarginL:!(m==='split'&&auto),iGapXL:m!=='split',iGapYL:g,iOrderL:m==='nup'||m==='split',iScaleL:m!=='split',iRotL:g,iBordersL:m!=='split',iMarksL:m!=='split',iRtlL:m!=='repeat',iCreepL:m==='booklet',iSectionL:m==='booklet',iOverlapL:m==='split'};
+ for(const k in on)$(k).classList.toggle('hide',!on[k]);
+ $('iRtlL').lastChild.textContent=m==='booklet'?'Right-to-left binding':'Right-to-left page order';
+ $('iGapXL').firstChild.textContent=m==='booklet'?'Gap at the spine (mm)':'Gap between pages (mm)'}
+const iN=(id,d=0)=>{const v=parseFloat($(id).value);return isFinite(v)?v:d};
+function iOpts(){return{mode:$('iMode').value,sheet:$('iSheet').value,customW:iN('iCW',210),customH:iN('iCH',297),orient:$('iOrient').value,margin:iN('iMargin'),gapX:iN('iGapX'),gapY:iN('iGapY'),cols:Math.max(1,iN('iCols',2)|0),rows:Math.max(1,iN('iRows',2)|0),order:$('iOrder').value,scale:$('iScale').value,rotateFit:$('iRot').checked,borders:$('iBorders').checked,marks:$('iMarks').checked,rtl:$('iRtl').checked,creep:iN('iCreep'),section:Math.max(0,iN('iSection')|0),overlap:iN('iOverlap'),pages:$('iPages').value}}
+function iSchedule(){if(tool!=='impose')return;iUi();clearTimeout(iT);iT=setTimeout(iPlan,180)}
+async function iPlan(){const f=PDF.impose.find(x=>!x.error&&x.sizes),el=$('iPrev');
+ if(!f){el.classList.add('hide');iErr='';return}
+ const seq=++iSeq;
+ try{const p=await inv('impose_plan',{sizes:f.sizes,opts:iOpts(),limit:12});if(seq!==iSeq)return;iErr='';iDraw(p)}
+ catch(e){if(seq!==iSeq)return;iErr=String(e);el.classList.remove('hide');el.innerHTML=`<p class="iErr">${esc(iErr)}</p>`}
+ $('pGo').disabled=pBusy||!!iErr}
+function iDraw(p){const el=$('iPrev'),m=$('iMode').value;el.classList.remove('hide');
+ const figs=p.sheets.map(s=>{const H=s.h;
+  const cells=s.cells.map(c=>{const y=H-c.y-c.h;
+   if(c.src==null)return`<rect class="iBl" x="${c.x}" y="${y}" width="${c.w}" height="${c.h}"/>`;
+   const cx=c.x+c.w/2,cy=y+c.h/2,fs=Math.min(c.w,c.h)*.3;
+   return`<rect class="iPg" x="${c.x}" y="${y}" width="${c.w}" height="${c.h}"/><text x="${cx}" y="${cy}" font-size="${fs}" text-anchor="middle" dominant-baseline="central"${c.rot?` transform="rotate(-90 ${cx} ${cy})"`:''}>${c.src+1}</text>`}).join('');
+  return`<figure class="iFig"><svg viewBox="0 0 ${s.w} ${H}"><rect class="iSh" width="${s.w}" height="${H}"/>${cells}</svg><figcaption>${esc(s.label)}</figcaption></figure>`}).join('');
+ const t=p.total,head=m==='booklet'?`${p.selected} pages → <b>${Math.ceil(t/2)} sheet${t<=2?'':'s'} of paper</b> (${t} printed sides)`:m==='split'?`${p.selected} page${p.selected===1?'':'s'} → <b>${t} piece${t===1?'':'s'}</b>`:`${p.selected} page${p.selected===1?'':'s'} → <b>${t} sheet${t===1?'':'s'}</b>`;
+ el.innerHTML=`<h4>${head}${t>p.sheets.length?` · showing the first ${p.sheets.length}`:''}</h4><div class="iGrid">${figs}</div>${p.notes.length?`<ul class="iNote">${p.notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul>`:''}`}
+$('iMode').onchange=()=>{const m=$('iMode').value;iFillSheets();
+ if(m==='nup'){$('iCols').value=2;$('iRows').value=2}else if(m==='repeat'){$('iCols').value=2;$('iRows').value=4}else if(m==='split'){$('iCols').value=2;$('iRows').value=1}
+ iUi();iSchedule()};
+$('o-impose').addEventListener('input',iSchedule);$('o-impose').addEventListener('change',iSchedule);
 </script></body></html>

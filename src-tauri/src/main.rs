@@ -1,5 +1,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 mod imgproc;
+mod impose;
 mod pdftools;
 use imgproc::{Fail, Opts, PreviewOut, RunOut};
 use serde_json::json;
@@ -93,6 +94,34 @@ async fn pdf_compress(
     .map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+async fn impose_sizes(path: String) -> Result<impose::SizesOut, String> {
+    tauri::async_runtime::spawn_blocking(move || impose::sizes(&path))
+        .await
+        .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+fn impose_plan(sizes: Vec<[f64; 2]>, opts: impose::Opts, limit: usize) -> Result<impose::Plan, String> {
+    impose::plan(sizes, &opts, limit)
+}
+
+#[tauri::command]
+async fn pdf_impose(
+    app: tauri::AppHandle,
+    path: String,
+    opts: impose::Opts,
+    out: String,
+) -> Result<impose::ImposeOut, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        impose::impose(&path, &opts, &out, &|i, n| {
+            let _ = app.emit("pdf-progress", json!({ "i": i, "n": n }));
+        })
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -104,7 +133,10 @@ fn main() {
             pdf_info,
             pdf_merge,
             pdf_split,
-            pdf_compress
+            pdf_compress,
+            impose_sizes,
+            impose_plan,
+            pdf_impose
         ])
         .run(tauri::generate_context!())
         .expect("error while running Photo and PDF Toolkit");
